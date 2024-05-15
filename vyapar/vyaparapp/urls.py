@@ -537,7 +537,8 @@ urlpatterns = [
 
     #Meenu shaju -----------------party Report----
     path('item_report_party',views.item_report_party,name='item_report_party'),
-    path('search_item_name',views.search_item_name,name='search_item_name'),
+    
+    
 
 
 
