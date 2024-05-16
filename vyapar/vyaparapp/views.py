@@ -16144,4 +16144,129 @@ def item_report_party(request):
   return render(request,'company\item_report_party.html',context)
 
 
+def item_party_searchdate(request):
+    sid = request.session.get('staff_id')
+    staff =  staff_details.objects.get(id=sid)
+    cmp = company.objects.get(id=staff.company.id)
+    allmodules = modules_list.objects.get(company=cmp, status='New')
+    pty = party.objects.filter(company=cmp)
 
+    if request.method == 'GET':
+        fromDate = request.GET.get('fromdate')
+        toDate = request.GET.get('todate')
+        start_date = datetime.strptime(fromDate, '%Y-%m-%d').date()
+        end_date = datetime.strptime(toDate, '%Y-%m-%d').date()
+
+        invoice_items_summary = SalesInvoiceItem.objects.filter(company=cmp, salesinvoice__date__gte=start_date, salesinvoice__date__lte=end_date).values(
+            'item__item_name').annotate(
+            item_name=Max('item__item_name'),
+            total_count=Sum('quantity'),
+            total_amount=Sum(F('quantity') * F('rate')),  # Calculate total amount
+            price=Sum('rate') / Count('item__item_name'),
+        )
+
+        invoice_item_names = [summary['item_name'] for summary in invoice_items_summary]
+
+        purchase_bill_summary = PurchaseBillItem.objects.filter(company=cmp, product__item_name__in=invoice_item_names, purchasebill__billdate__gte=start_date,purchasebill__billdate__lte=end_date).values(
+            'product__item_name').annotate(
+            item_name=Max('product__item_name'),
+            total_count=Sum('qty'),
+            total_amount=Sum(F('qty') * F('total')),  # Calculate total amount
+            price=Sum('total') / Count('product__item_name'),
+        )
+
+        combined_data = {}
+
+        for sale_summary in invoice_items_summary:
+            item_name = sale_summary['item_name']
+            if item_name in combined_data:
+                combined_data[item_name]['sales_quantity'] += sale_summary['total_count']
+                combined_data[item_name]['sales_amount'] += sale_summary['total_amount']
+            else:
+                combined_data[item_name] = {
+                    'item_name': item_name,
+                    'sales_quantity': sale_summary['total_count'],
+                    'sales_amount': sale_summary['total_amount'],
+                    'purchase_quantity': 0,
+                    'purchase_amount': 0
+                }
+
+        for purchase_summary in purchase_bill_summary:
+            item_name = purchase_summary['product__item_name']
+            if item_name in combined_data:
+                combined_data[item_name]['purchase_quantity'] += purchase_summary['total_count']
+                combined_data[item_name]['purchase_amount'] += purchase_summary['total_amount']
+            else:
+                combined_data[item_name] = {
+                    'item_name': item_name,
+                    'sales_quantity': 0,
+                    'sales_amount': 0,
+                    'purchase_quantity': purchase_summary['total_count'],
+                    'purchase_amount': purchase_summary['total_amount']
+                }
+
+        context = {'c_data': combined_data}
+        return JsonResponse(context)
+
+
+
+def item_party_filter(request):
+    sid = request.session.get('staff_id')
+    staff =  staff_details.objects.get(id=sid)
+    cmp = company.objects.get(id=staff.company.id)
+    allmodules = modules_list.objects.get(company=cmp, status='New')
+    
+    if request.method == 'GET':
+        pty = request.GET.get('selectparty')
+        
+
+        invoice_items_summary = SalesInvoiceItem.objects.filter(company=cmp, salesinvoice__party = pty).values(
+            'item__item_name').annotate(
+            item_name=Max('item__item_name'),
+            total_count=Sum('quantity'),
+            total_amount=Sum(F('quantity') * F('rate')), 
+            price=Sum('rate') / Count('item__item_name'),
+        )
+
+        invoice_item_names = [summary['item_name'] for summary in invoice_items_summary]
+
+        purchase_bill_summary = PurchaseBillItem.objects.filter(company=cmp, product__item_name__in=invoice_item_names, purchasebill__party = pty).values(
+            'product__item_name').annotate(
+            item_name=Max('product__item_name'),
+            total_count=Sum('qty'),
+            total_amount=Sum(F('qty') * F('total')),  # Calculate total amount
+            price=Sum('total') / Count('product__item_name'),
+        )
+
+        combined_data = {}
+
+        for sale_summary in invoice_items_summary:
+            item_name = sale_summary['item_name']
+            if item_name in combined_data:
+                combined_data[item_name]['sales_quantity'] += sale_summary['total_count']
+                combined_data[item_name]['sales_amount'] += sale_summary['total_amount']
+            else:
+                combined_data[item_name] = {
+                    'item_name': item_name,
+                    'sales_quantity': sale_summary['total_count'],
+                    'sales_amount': sale_summary['total_amount'],
+                    'purchase_quantity': 0,
+                    'purchase_amount': 0
+                }
+
+        for purchase_summary in purchase_bill_summary:
+            item_name = purchase_summary['product__item_name']
+            if item_name in combined_data:
+                combined_data[item_name]['purchase_quantity'] += purchase_summary['total_count']
+                combined_data[item_name]['purchase_amount'] += purchase_summary['total_amount']
+            else:
+                combined_data[item_name] = {
+                    'item_name': item_name,
+                    'sales_quantity': 0,
+                    'sales_amount': 0,
+                    'purchase_quantity': purchase_summary['total_count'],
+                    'purchase_amount': purchase_summary['total_amount']
+                }
+
+        context = {'c_data': combined_data}
+        return JsonResponse(context)

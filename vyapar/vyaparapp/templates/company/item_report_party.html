@@ -31,7 +31,7 @@
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
 <style>
-     tbody tr:nth-child(odd) {
+    #myTable tr:nth-child(odd) {
     background-color: #f2f2f2; 
 }
      @media print{
@@ -54,11 +54,11 @@
         font-size: 18px;
         
     }
-    .th{
+    th{
         color: rgb(12, 79, 234);
     }
    
-   
+ 
 
 
  
@@ -78,9 +78,9 @@
                         <div class="card-group w-100 mx-auto d-block"> 
                             <h2 style="color:red; text-align: center;">{{staff.company.company_name}}</h2>
                         <h4 style="text-align: center;">Item Report - Party </h4>
-                        {% if from_date and to_date %}
-                        <span>{{ from_date }} to {{ to_date }}</span>
-                    {% endif %}
+                        <h6 style="text-align: center;" id="datefilter" ></h6>
+
+                   
                         <h5 style="text-align: center;">
                             <span id="s1date" style="color:black; text-align: center;"></span>
                             <span id="e1date" style="color:black; text-align: center;"></span></h5>
@@ -88,20 +88,21 @@
 
                         </div>
                         <div class="bar d-flex justify-content-between">
-                            <div class=" card-group">
+                            <div class=" card-group p-0 bg-light bs ">
                                 
-                                <div class="px-2">
+                                
+                                <div class="px-2 w-50">
                                    
                                     <label style="text-align:left;color: black; ">From</label><br>
-                                    <input name="FromDate" class="inputdate form-control" type="date" id="in1">
+                                    <input name="FromDate" class="inputdate form-control" type="date" id="in1" onchange="details_filter_by_date()">
                                 </div>
-                                <div class="px-2">
+                                <div class="px-2 w-50">
                                     <label style="text-align:left;color: black; ">To</label><br>
-                                    <input name="ToDate" class="inputdate form-control" type="date" id="in2">
+                                    <input name="ToDate" class="inputdate form-control" type="date" id="in2" onchange="details_filter_by_date()">
                                 </div>
-                                <div class="px-2">
+                                  <div class="px-2 w-50">
                                     <label style="text-align:left;color: black; ">Party</label><br>
-                                    <select name="party" class="inputdate form-control" id="in3">
+                                    <select name="party" class="inputdate form-control" id="in3" onchange="details_filter_by_party()">
                                         <option value="party1">Select Party</option>
                                         {% for i in party %}
                                         <option value="{{i.id}}">{{i.party_name}}</option>
@@ -111,6 +112,10 @@
                                     <button type="submit" id="hiddenSubmitButton" style="display: none;"></button>
                                
                                 </div>
+
+
+                               
+
                             </div>
                             <div class=" card-group">
                                 <div class="right mt-3">
@@ -139,11 +144,23 @@
                                           </div>
                                     </a>
                             </div>
+
+
+                            
+
+
                         </div>
+
                     </div>
 
+
+                    
+    
                     
                 </div>
+
+               
+
             </div>
 
 
@@ -201,7 +218,7 @@
                         
        
 
-        <div class="row pt-0 m-0">
+        <div class="row pt-0 m-0 p-0 bg-light bs">
             <div class="col " style="text-align: end; margin-right:30px;"> <a class="mr-12" href="{% url 'companyreport' %}" style="text-align: right; font-size:xx-large; color: black;">
                 <i class="fa fa-times mt-2" aria-hidden="true"></i>
             </a></div>
@@ -357,7 +374,7 @@
                                 
                                
                             </thead>
-                            <tbody >
+                            <tbody id = myTableBody >
                                 {% for cd in combined_data.values %}
                                 <tr id="mytable_tr">
                                     <td>{{cd.item_name}}</td>
@@ -586,6 +603,7 @@
 
 
   <script>
+    
    
     var initialTotals = {
         total_sales_quantity: 0,
@@ -635,7 +653,7 @@
         var visibleRows = document.querySelectorAll('#myTable tbody tr');
         visibleRows.forEach(function(row) {
             row.style.display = "";
-        });// Reset total values to initial state
+        });
         updateTotalValues(
             initialTotals.total_sales_quantity,
             initialTotals.total_sales_amount,
@@ -644,14 +662,14 @@
         );
     }
 
-    // Save initial state upon page load
+    
     window.onload = function() {
-        // Store initial totals
+        
         initialTotals.total_sales_quantity = parseInt(document.getElementById('total_sales_quantity').textContent) || 0;
         initialTotals.total_sales_amount = parseFloat(document.getElementById('total_sales_amount').textContent) || 0;
         initialTotals.total_purchase_quantity = parseInt(document.getElementById('total_purchase_quantity').textContent) || 0;
         initialTotals.total_purchase_amount = parseFloat(document.getElementById('total_purchase_amount').textContent) || 0;
-        // Calculate totals based on initial state
+        
         calculateTotals(); 
     };
 
@@ -678,7 +696,7 @@
 
 
         var matchFound = false;
-        td = tr[i].getElementsByTagName("td")[0]; // Assuming the item name is in the first column
+        td = tr[i].getElementsByTagName("td")[0]; 
         if (td) {
             txtValue = td.textContent || td.innerText;
             if (txtValue.toUpperCase() === filter) {
@@ -697,35 +715,136 @@
 </script>
 
 
-<script>
-    function checkFieldsAndSearch() {
-        var fromDate = document.getElementById('in1').value;
-        var toDate = document.getElementById('in2').value;
-        var py = document.getElementById('in3').value;
 
-        if (fromDate && toDate && py != 'party1') {
-           
-            if (fromDate && toDate && party !== 'party1') {
-        document.getElementById('searchForm').submit(); 
-    }
+<script>
+  
+    function details_filter_by_date() {
+        var fromdate = document.getElementById('in1').value || 0;
+        var todate = document.getElementById('in2').value || 0;
+
+        if (todate !== 0 && fromdate !== 0) {
+            document.getElementById('datefilter').innerHTML = fromdate + '  to  ' + todate;
+            $.ajax({
+                type: 'GET',
+                url: '{% url "item_party_searchdate" %}',
+                data: {
+                    fromdate: fromdate,
+                    todate: todate
+                },
+                success: function(data) {
+                    var tbody = document.querySelector('#myTable tbody'); 
+                    console.log(data.c_data);
+                    if (data && data.c_data) {
+                        tbody.innerHTML = ''; // Emptying the table body
+                        for (var itemName in data.c_data) {
+                            if (data.c_data.hasOwnProperty(itemName)) {
+                                var item = data.c_data[itemName];
+                                var newRow = `<tr>
+                                    <td class="" style="color: black;">${itemName}</td>
+                                    <td class="sales-quantity" style="color: black;">${item['sales_quantity']}</td>
+                                    <td class="sales-amount" style="color: black;">${item['sales_amount']}</td>
+                                    <td class="purchase-quantity" style="color: black;">${item['purchase_quantity']}</td>
+                                    <td class="purchase-amount" style="color: black;">${item['purchase_amount']}</td>
+                                </tr>`;
+                                tbody.insertAdjacentHTML('beforeend', newRow);
+                            }
+                        }
+                        
+                        // Calculate totals based on the data received
+                        var totalSalesQuantity = 0;
+                        var totalSalesAmount = 0;
+                        var totalPurchaseQuantity = 0;
+                        var totalPurchaseAmount = 0;
+
+                        for (var itemName in data.c_data) {
+                            if (data.c_data.hasOwnProperty(itemName)) {
+                                var item = data.c_data[itemName];
+                                totalSalesQuantity += parseInt(item['sales_quantity']) || 0;
+                                totalSalesAmount += parseFloat(item['sales_amount']) || 0;
+                                totalPurchaseQuantity += parseInt(item['purchase_quantity']) || 0;
+                                totalPurchaseAmount += parseFloat(item['purchase_amount']) || 0;
+                            }
+                        }
+
+                        // Update total values
+                        updateTotalValues(totalSalesQuantity, totalSalesAmount, totalPurchaseQuantity, totalPurchaseAmount);
+                    } else {
+                        console.log('No data received or invalid format');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
         } else {
-            var errorMessage = "";
-            if (!fromDate) {
-                errorMessage += "From Date is empty.\n";
-            }
-            if (!toDate) {
-                errorMessage += "To Date is empty.\n";
-            }
-            if (py == 'party1') {
-                errorMessage += "Party is not selected.\n";
-            }
-            alert(errorMessage);
+            console.log('Enter both dates');
         }
     }
 
-    
-    document.getElementById('in1').addEventListener('change', checkFieldsAndSearch);
-    document.getElementById('in2').addEventListener('change', checkFieldsAndSearch);
-    document.getElementById('in3').addEventListener('change', checkFieldsAndSearch);
 </script>
+
+<script>
+    function details_filter_by_party() {
+        var selectedParty = document.getElementById('in3').value || 0;
+
+        if (selectedParty !== 0) {
+            $.ajax({
+                type: 'GET',
+                url: '{% url "item_party_filter" %}',
+                data: {
+                    selectparty: selectedParty
+                },
+                success: function(data) {
+                    var tbody = document.querySelector('#myTable tbody');
+                    console.log(data.c_data);
+                    if (data && data.c_data) {
+                        tbody.innerHTML = ''; 
+                        for (var itemName in data.c_data) {
+                            if (data.c_data.hasOwnProperty(itemName)) {
+                                var item = data.c_data[itemName];
+                                var newRow = `<tr>
+                                    <td class="" style="color: black;">${itemName}</td>
+                                    <td class="sales-quantity" style="color: black;">${item['sales_quantity']}</td>
+                                    <td class="sales-amount" style="color: black;">${item['sales_amount']}</td>
+                                    <td class="purchase-quantity" style="color: black;">${item['purchase_quantity']}</td>
+                                    <td class="purchase-amount" style="color: black;">${item['purchase_amount']}</td>
+                                </tr>`;
+                                tbody.insertAdjacentHTML('beforeend', newRow);
+                            }
+                        }
+
+                        
+                        var totalSalesQuantity = 0;
+                        var totalSalesAmount = 0;
+                        var totalPurchaseQuantity = 0;
+                        var totalPurchaseAmount = 0;
+
+                        for (var itemName in data.c_data) {
+                            if (data.c_data.hasOwnProperty(itemName)) {
+                                var item = data.c_data[itemName];
+                                totalSalesQuantity += parseInt(item['sales_quantity']) || 0;
+                                totalSalesAmount += parseFloat(item['sales_amount']) || 0;
+                                totalPurchaseQuantity += parseInt(item['purchase_quantity']) || 0;
+                                totalPurchaseAmount += parseFloat(item['purchase_amount']) || 0;
+                            }
+                        }
+
+                       
+                        updateTotalValues(totalSalesQuantity, totalSalesAmount, totalPurchaseQuantity, totalPurchaseAmount);
+                    } else {
+                        console.log('No data received or invalid format');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
+        } else {
+            console.log('Select a party');
+        }
+    }
+</script>
+
+
+
 {% endblock %}

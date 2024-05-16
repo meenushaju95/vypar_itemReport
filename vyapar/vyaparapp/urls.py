@@ -537,10 +537,11 @@ urlpatterns = [
 
     #Meenu shaju -----------------party Report----
     path('item_report_party',views.item_report_party,name='item_report_party'),
+                
+    path('item_party_searchdate',views.item_party_searchdate,name='item_party_searchdate'),
+    path('item_party_filter',views.item_party_filter,name='item_party_filter'),
     
     
-
-
 
     #End
     path('purchasebill_checkgstin', views.purchasebill_checkgstin, name='purchasebill_checkgstin'),
