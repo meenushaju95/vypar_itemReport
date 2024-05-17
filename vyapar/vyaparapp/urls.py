@@ -540,6 +540,7 @@ urlpatterns = [
                 
     path('item_party_searchdate',views.item_party_searchdate,name='item_party_searchdate'),
     path('item_party_filter',views.item_party_filter,name='item_party_filter'),
+    path('itemReport_mail',views.itemReport_mail,name='itemReport_mail'),
     
     
 
